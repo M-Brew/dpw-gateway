@@ -131,4 +131,49 @@ router.get("/data", async (req: Request, res: Response) => {
   }
 });
 
+router.post(
+  "/email-verification-request",
+  async (req: Request, res: Response) => {
+    try {
+      const response = await fetch(
+        `${AUTH_BASE_URL}/api/auth/email-verification-request`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: req.headers["authorization"],
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const jsonResponse = await response.json();
+
+      return res.status(response.status).send(jsonResponse);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(500);
+    }
+  }
+);
+
+router.post("/verify-email", async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  try {
+    const response = await fetch(`${AUTH_BASE_URL}/api/auth/verify-email`, {
+      method: "POST",
+      headers: {
+        Authorization: req.headers["authorization"],
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const jsonResponse = await response.json();
+
+    return res.status(response.status).send(jsonResponse);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
 export default router;

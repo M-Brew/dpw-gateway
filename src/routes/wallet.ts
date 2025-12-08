@@ -10,8 +10,6 @@ const router = Router();
 
 router.post("/create", validateAuth, async (req: Request, res: Response) => {
   try {
-    const payload = req.body;
-
     const response = await fetch(
       `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/create`,
       {
@@ -19,7 +17,7 @@ router.post("/create", validateAuth, async (req: Request, res: Response) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: req.user.id, ...payload }),
+        body: JSON.stringify({ userId: req.user.id }),
       }
     );
     const jsonResponse = await response.json();
@@ -31,7 +29,7 @@ router.post("/create", validateAuth, async (req: Request, res: Response) => {
   }
 });
 
-router.get("/:userId", async (req: Request, res: Response) => {
+router.get("/:userId", validateAuth, async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
