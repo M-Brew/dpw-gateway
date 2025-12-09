@@ -1,179 +1,40 @@
-import { Router, Request, Response } from "express";
-import dotenv from "dotenv";
-dotenv.config();
+import { Router } from "express";
 
-const { AUTH_BASE_URL } = process.env;
+import authController from "../controllers/authController";
+import { upload } from "../middlewares/uploadFile";
+import { validateAuth } from "../validation/authValidation";
 
 const router = Router();
 
-router.post("/sign-up", async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
+router.post("/sign-up", authController.signUp);
 
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/sign-up`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const jsonResponse = await response.json();
+router.post("/sign-in", authController.signIn);
 
-    return res.status(response.status).send(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.post("/admin-sign-in", authController.adminSignIn);
 
-router.post("/sign-in", async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
+router.post("/token", authController.token);
 
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/sign-in`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const jsonResponse = await response.json();
+router.get("/data", authController.data);
 
-    return res.status(response.status).send(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
-
-router.post("/admin-sign-in", async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
-
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/admin-sign-in`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const jsonResponse = await response.json();
-
-    return res.status(response.status).send(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
-
-router.post("/token", async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
-
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.status === 200) {
-      const jsonResponse = await response.json();
-
-      return res.status(response.status).send(jsonResponse);
-    }
-
-    return res.sendStatus(response.status);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
-
-router.post("/sign-out", async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
-
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/sign-out`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    return res.sendStatus(response.status);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
-
-router.get("/data", async (req: Request, res: Response) => {
-  try {
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/data`, {
-      headers: {
-        Authorization: req.headers["authorization"],
-      },
-    });
-
-    if (response.status !== 200) {
-      return res.sendStatus(response.status);
-    }
-
-    const jsonResponse = await response.json();
-
-    return res.status(response.status).send(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.post("/sign-out", authController.signOut);
 
 router.post(
   "/email-verification-request",
-  async (req: Request, res: Response) => {
-    try {
-      const response = await fetch(
-        `${AUTH_BASE_URL}/api/auth/email-verification-request`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: req.headers["authorization"],
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const jsonResponse = await response.json();
-
-      return res.status(response.status).send(jsonResponse);
-    } catch (error) {
-      console.log(error);
-      return res.sendStatus(500);
-    }
-  }
+  authController.emailVerificationRequest
 );
 
-router.post("/verify-email", async (req: Request, res: Response) => {
-  const payload = req.body;
+router.post("/verify-email", authController.verifyEmail);
 
-  try {
-    const response = await fetch(`${AUTH_BASE_URL}/api/auth/verify-email`, {
-      method: "POST",
-      headers: {
-        Authorization: req.headers["authorization"],
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const jsonResponse = await response.json();
+router.get("/profile", authController.getProfile);
 
-    return res.status(response.status).send(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.patch("/update-profile", authController.updateProfile);
+
+router.post("/add-profile-picture", validateAuth, upload.single("profilePicture"), authController.addProfilePicture);
+
+router.delete("/delete-profile-picture", authController.deleteProfilePicture);
+
+router.post("/password-reset-request", authController.passwordResetRequest);
+
+router.post("/reset-password", authController.resetPassword);
 
 export default router;
