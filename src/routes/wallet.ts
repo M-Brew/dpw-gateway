@@ -1,71 +1,20 @@
-import { Router, Request, Response } from "express";
-import dotenv from "dotenv";
-dotenv.config();
+import { Router } from "express";
 
-import { validateAuth } from "../validation/authValidation";
-
-const { WALLET_MANAGEMENT_BASE_URL } = process.env;
+import walletController from "../controllers/walletController";
+import { validateAdmin, validateAuth } from "../validation/authValidation";
 
 const router = Router();
 
-router.post("/create", validateAuth, async (req: Request, res: Response) => {
-  try {
-    const response = await fetch(
-      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/create`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: req.user.id }),
-      }
-    );
-    const jsonResponse = await response.json();
+router.post("/create", validateAuth, walletController.createWallet);
 
-    return res.status(response.status).json(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.get("/my-wallet", validateAuth, walletController.getMyWallet);
 
-router.get("/:userId", validateAuth, async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
+router.get("/:walletId", validateAdmin, walletController.getWallet);
 
-    const response = await fetch(
-      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/${userId}`
-    );
-    const jsonResponse = await response.json();
+router.get("/user/:userId", validateAdmin, walletController.getUserWallet);
 
-    return res.status(response.status).json(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.post("/update", validateAuth, walletController.updateWallet);
 
-router.post("/update", validateAuth, async (req: Request, res: Response) => {
-  try {
-    const payload = req.body;
-
-    const response = await fetch(
-      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/update`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: req.user.id, ...payload }),
-      }
-    );
-    const jsonResponse = await response.json();
-
-    return res.status(response.status).json(jsonResponse);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
+router.patch("/updateStatus", validateAdmin, walletController.updateWalletStatus);
 
 export default router;
