@@ -86,6 +86,21 @@ const getUserWallet = async (req: Request, res: Response) => {
   }
 }
 
+const getWalletByNameOrWalletCode = async (req: Request, res: Response) => {
+  try {
+    const { nameOrWalletCode } = req.params;
+
+    const response = await fetchData(
+      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/wallet/${nameOrWalletCode}`
+    );
+
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
+
 const updateWallet = async (req: Request, res: Response) => {
   try {
     const payload = req.body;
@@ -115,7 +130,51 @@ const updateWalletStatus = async (req: Request, res: Response) => {
     const response = await fetchData(
       `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/updateStatus`,
       {
-        method: "POST",
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
+
+const addContact = async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+
+    const response = await fetchData(
+      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/add-contact`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
+
+const removeContact = async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+
+    const response = await fetchData(
+      `${WALLET_MANAGEMENT_BASE_URL}/api/wallets/remove-contact`,
+      {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -135,6 +194,9 @@ export default {
   getMyWallet,
   getWallet,
   getUserWallet,
+  getWalletByNameOrWalletCode,
   updateWallet,
   updateWalletStatus,
+  addContact,
+  removeContact,
 }
