@@ -156,7 +156,7 @@ const addContact = async (req: Request, res: Response) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, userId: req.user.id }),
       }
     );
 
